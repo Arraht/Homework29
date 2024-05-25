@@ -53,4 +53,8 @@ public class FacultyService {
         }
         return null;
     }
+
+    public Map<Long, Faculty> getAllFaculty() {
+        return allFaculty;
+    }
 }
