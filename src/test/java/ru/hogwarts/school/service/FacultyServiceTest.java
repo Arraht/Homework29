@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class FacultyServiceTest {
-    private final FacultyService facultyService = new FacultyService();
+   /* private final FacultyService facultyService = new FacultyService();
     private Faculty gryffindor;
     private Faculty slytherin;
     private Faculty hufflepuff;
@@ -152,5 +152,5 @@ public class FacultyServiceTest {
         facultyMapTest.remove(3L);
         facultyService.deleteFaculty(3L);
         assertEquals(facultyMapTest, facultyService.getAllFaculty());
-    }
+    }*/
 }

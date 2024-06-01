@@ -17,12 +17,12 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @PostMapping // полный URL - localhost:8080/student
+    @PostMapping
     public Student createStudent(@RequestBody Student student) {
         return studentService.addStudent(student);
     }
 
-    @GetMapping("{id}") // полный URL - localhost:8080/student/23
+    @GetMapping("{id}")
     public ResponseEntity<Student> getStudent(@PathVariable Long id) {
         Student student = studentService.findStudent(id);
         if (student == null) {
@@ -31,16 +31,16 @@ public class StudentController {
         return ResponseEntity.ok(student);
     }
 
-    @PutMapping // полный URL - localhost:8080/student
+    @PutMapping
     public ResponseEntity<Student> editStudent(@RequestBody Student student) {
-        Student foundStudent = studentService.editStudent(student);
+        Student foundStudent = studentService.editStudent(student.getId(), student);
         if (foundStudent == null) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(foundStudent);
     }
 
-    @DeleteMapping("{id}") // полный URL - localhost:8080/student/23
+    @DeleteMapping("{id}")
     public ResponseEntity<Student> removeStudent(@PathVariable Long id) {
         Student student = studentService.deleteStudent(id);
         if (student == null) {
@@ -49,9 +49,9 @@ public class StudentController {
         return ResponseEntity.ok(student);
     }
 
-    @GetMapping("age/{age}") // полный URL - localhost:8080/student/age/23
-    public ResponseEntity<List<Student>> getStudentByAge(@PathVariable int age) {
-        List<Student> studentList =studentService.foundStudentByAge(age);
+    @GetMapping(params = "age", path = "age")
+    public ResponseEntity<List<Student>> getStudentByAge(@RequestParam int age) {
+        List<Student> studentList = studentService.foundStudentByAge(age);
         if (studentList == null) {
             return ResponseEntity.notFound().build();
         }

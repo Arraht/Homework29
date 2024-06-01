@@ -2,59 +2,57 @@ package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repositories.StudentRepository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class StudentService {
-    private final Map<Long, Student> allStudents = new HashMap<>(Map.of());
-    private Long id = 0L;
 
-    public Student addStudent(Student student) {
-        ++this.id;
-        student.setId(this.id);
-        allStudents.put(student.getId(), student);
-        return student;
+    private final StudentRepository studentRepository;
+
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
     }
 
-    public Student editStudent(Student student) {
-        if (allStudents.containsKey(student.getId())) {
-            allStudents.put(student.getId(), student);
-            return student;
+    public Student addStudent(Student student) {
+        student.setId(null);
+        return studentRepository.save(student);
+    }
+
+    public Student editStudent(Long id, Student student) {
+        if (studentRepository.findById(id).isEmpty()) {
+            return null;
         }
-        return null;
+        return studentRepository.save(student);
     }
 
     public Student findStudent(Long id) {
-        if (allStudents.containsKey(id)) {
-            return allStudents.get(id);
+        if (studentRepository.findById(id).isEmpty()) {
+            return null;
         }
-        return null;
+        return studentRepository.findById(id).get();
     }
 
     public List<Student> foundStudentByAge(int age) {
-        List<Student> studentByAge = allStudents
-                .values()
+        List<Student> studentList = studentRepository
+                .findAll()
                 .stream()
                 .filter(student -> student.getAge() == age)
                 .toList();
-        if (studentByAge.isEmpty()) {
+        if (studentList.isEmpty()) {
             return null;
         }
-        return studentByAge;
+        return studentList;
     }
-
 
     public Student deleteStudent(Long id) {
-        if (allStudents.containsKey(id)) {
-            return allStudents.remove(id);
+        if (studentRepository.findById(id).isEmpty()) {
+            return null;
+        } else {
+            Student student = studentRepository.findById(id).get();
+            studentRepository.deleteById(id);
+            return student;
         }
-        return null;
-    }
-
-    public Map<Long, Student> getAllStudents() {
-        return allStudents;
     }
 }
