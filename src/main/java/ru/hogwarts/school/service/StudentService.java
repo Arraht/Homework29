@@ -15,39 +15,46 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
+    public boolean checkStudentById(Long id) {
+        if (studentRepository.findById(id).isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public Student addStudent(Student student) {
-        student.setId(null);
         return studentRepository.save(student);
     }
 
     public Student editStudent(Long id, Student student) {
-        if (studentRepository.findById(id).isEmpty()) {
+        if (checkStudentById(id)) {
             return null;
+        } else {
+            Student foundStudentForEdit = studentRepository.findById(id).get();
+            foundStudentForEdit.setStudent(id, student.getName(), student.getAge());
+            return studentRepository.save(foundStudentForEdit);
         }
-        return studentRepository.save(student);
     }
 
     public Student findStudent(Long id) {
-        if (studentRepository.findById(id).isEmpty()) {
+        if (checkStudentById(id)) {
             return null;
+        } else {
+            return studentRepository.findById(id).get();
         }
-        return studentRepository.findById(id).get();
     }
 
     public List<Student> foundStudentByAge(int age) {
-        List<Student> studentList = studentRepository
+        return studentRepository
                 .findAll()
                 .stream()
                 .filter(student -> student.getAge() == age)
                 .toList();
-        if (studentList.isEmpty()) {
-            return null;
-        }
-        return studentList;
     }
 
     public Student deleteStudent(Long id) {
-        if (studentRepository.findById(id).isEmpty()) {
+        if (checkStudentById(id)) {
             return null;
         } else {
             Student student = studentRepository.findById(id).get();

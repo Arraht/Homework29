@@ -15,40 +15,46 @@ public class FacultyService {
         this.facultyRepository = facultyRepository;
     }
 
+    public boolean checkFacultyById(Long id) {
+        if (facultyRepository.findById(id).isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public Faculty addFaculty(Faculty faculty) {
-        faculty.setId(null);
         return facultyRepository.save(faculty);
     }
 
     public Faculty editFaculty(Long id, Faculty faculty) {
-        if (facultyRepository.findById(id).isEmpty()) {
+        if (checkFacultyById(id)) {
             return null;
+        } else {
+            Faculty foundFacultyForEdit = facultyRepository.findById(id).get();
+            foundFacultyForEdit.setFaculty(id, faculty.getName(), faculty.getColor());
+            return facultyRepository.save(foundFacultyForEdit);
         }
-        return facultyRepository.save(faculty);
     }
 
     public Faculty getFaculty(Long id) {
-        if (facultyRepository.findById(id).isEmpty()) {
+        if (checkFacultyById(id)) {
             return null;
+        } else {
+            return facultyRepository.findById(id).get();
         }
-        return facultyRepository.findById(id).get();
     }
 
     public List<Faculty> foundFacultyByColor(String color) {
-        List<Faculty> facultyList = facultyRepository
+        return facultyRepository
                 .findAll()
                 .stream()
-                .filter(faculty -> Objects.equals(faculty.getColor(), color))
+                .filter(faculty -> Objects.equals(faculty.getColor(), color.toLowerCase()))
                 .toList();
-        if (facultyList.isEmpty()) {
-            return null;
-        } else {
-            return facultyList;
-        }
     }
 
     public Faculty deleteFaculty(Long id) {
-        if (facultyRepository.findById(id).isEmpty()) {
+        if (checkFacultyById(id)) {
             return null;
         } else {
             Faculty faculty = facultyRepository.findById(id).get();

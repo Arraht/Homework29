@@ -2,7 +2,6 @@ package ru.hogwarts.school.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import java.util.Objects;
@@ -46,6 +45,12 @@ public class Student {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public void setStudent(Long id, String name, int age) {
+        setId(id);
+        setName(name);
+        setAge(age);
     }
 
     @Override

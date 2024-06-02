@@ -48,6 +48,12 @@ public class Faculty {
         this.color = color.toLowerCase();
     }
 
+    public void setFaculty(Long id, String name, String color) {
+        setId(id);
+        setName(name);
+        setColor(color);
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;

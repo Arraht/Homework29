@@ -1,156 +1,120 @@
 package ru.hogwarts.school.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.repositories.FacultyRepository;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class FacultyServiceTest {
-   /* private final FacultyService facultyService = new FacultyService();
-    private Faculty gryffindor;
-    private Faculty slytherin;
-    private Faculty hufflepuff;
-    private Faculty ravenclaw;
-    private final Map<Long, Faculty> facultyMapTest = new HashMap<>(Map.of());
+    @Mock
+    private FacultyRepository facultyRepository;
+    @InjectMocks
+    private FacultyService facultyService;
+    private Faculty faculty;
 
     @BeforeEach
     public void setUp() {
-        gryffindor = new Faculty(1L, "Гриффиндор", "красный");
-        slytherin = new Faculty(2L, "Слизерин", "зелёный");
-        hufflepuff = new Faculty(3L, "Пуфендуй", "красный");
-        ravenclaw = new Faculty(4L, "Когтевран", "синий");
-        facultyMapTest.put(1L, gryffindor);
-        facultyMapTest.put(2L, slytherin);
-        facultyMapTest.put(3L, hufflepuff);
-        facultyMapTest.put(4L, ravenclaw);
-    }
-
-    @Test
-    public void getAllFacultyTest() {
-        facultyService.getAllFaculty().put(1L, gryffindor);
-        facultyService.getAllFaculty().put(2L, slytherin);
-        facultyService.getAllFaculty().put(3L, hufflepuff);
-        facultyService.getAllFaculty().put(4L, ravenclaw);
-        assertEquals(facultyMapTest, facultyService.getAllFaculty());
-    }
-
-    @Test
-    public void returnAddFacultyTest() {
-        Faculty faculty = new Faculty(1L, "Гриффиндор", "красный");
-        assertEquals(gryffindor, facultyService.addFaculty(faculty));
+        faculty = new Faculty();
+        faculty.setId(1L);
+        faculty.setName("Гиффиндор");
+        faculty.setColor("Красный");
     }
 
     @Test
     public void addFacultyTest() {
-        facultyService.addFaculty(gryffindor);
-        facultyService.addFaculty(slytherin);
-        facultyService.addFaculty(hufflepuff);
-        facultyService.addFaculty(ravenclaw);
-        assertEquals(facultyMapTest, facultyService.getAllFaculty());
+        when(facultyRepository.save(any(Faculty.class))).thenReturn(faculty);
+        assertEquals("Гиффиндор", facultyService.addFaculty(faculty).getName());
     }
 
     @Test
-    public void returnEditFacultyTest() {
-        Faculty faculty = new Faculty(2L, "Гриффиндор", "красный");
-        facultyService.getAllFaculty().put(1L, gryffindor);
-        facultyService.getAllFaculty().put(2L, slytherin);
-        facultyService.getAllFaculty().put(3L, hufflepuff);
-        facultyService.getAllFaculty().put(4L, ravenclaw);
-        assertEquals(faculty, facultyService.editFaculty(faculty));
+    public void checkFacultyByIdTrueTest() {
+        when(facultyRepository.findById(2L)).thenReturn(Optional.empty());
+        assertTrue(facultyService.checkFacultyById(2L));
     }
 
     @Test
-    public void returnNullEditFacultyTest() {
-        Faculty faculty = new Faculty(7L, "Гриффиндор", "красный");
-        facultyService.getAllFaculty().put(1L, gryffindor);
-        facultyService.getAllFaculty().put(2L, slytherin);
-        facultyService.getAllFaculty().put(3L, hufflepuff);
-        facultyService.getAllFaculty().put(4L, ravenclaw);
-        assertNull(facultyService.editFaculty(faculty));
+    public void checkFacultyByIdTrueFalse() {
+        when(facultyRepository.findById(1L)).thenReturn(Optional.of(faculty));
+        assertFalse(facultyService.checkFacultyById(1L));
     }
 
     @Test
     public void editFacultyTest() {
-        Faculty faculty = new Faculty(2L, "Гриффиндор", "красный");
-        facultyService.getAllFaculty().put(1L, gryffindor);
-        facultyService.getAllFaculty().put(2L, slytherin);
-        facultyService.getAllFaculty().put(3L, hufflepuff);
-        facultyService.getAllFaculty().put(4L, ravenclaw);
-        facultyMapTest.put(2L, faculty);
-        facultyService.editFaculty(faculty);
-        assertEquals(facultyMapTest, facultyService.getAllFaculty());
+        when(facultyRepository.findById(1L)).thenReturn(Optional.of(faculty));
+        when(facultyRepository.save(any(Faculty.class))).thenReturn(faculty);
+        faculty.setName("Слизерин");
+        assertEquals("Слизерин", facultyService.editFaculty(1L, faculty).getName());
     }
 
     @Test
-    public void returnNullGetFacultyTest() {
-        facultyService.getAllFaculty().put(1L, gryffindor);
-        facultyService.getAllFaculty().put(2L, slytherin);
-        facultyService.getAllFaculty().put(3L, hufflepuff);
-        facultyService.getAllFaculty().put(4L, ravenclaw);
-        assertNull(facultyService.getFaculty(10L));
+    public void returnNullEditFacultyTest() {
+        when(facultyRepository.findById(2L)).thenReturn(Optional.empty());
+        assertNull(facultyService.editFaculty(2L, faculty));
     }
 
     @Test
     public void getFacultyTest() {
-        facultyService.getAllFaculty().put(1L, gryffindor);
-        facultyService.getAllFaculty().put(2L, slytherin);
-        facultyService.getAllFaculty().put(3L, hufflepuff);
-        facultyService.getAllFaculty().put(4L, ravenclaw);
-        assertEquals(hufflepuff, facultyService.getFaculty(3L));
+        when(facultyRepository.findById(1L)).thenReturn(Optional.of(faculty));
+        assertEquals("Гиффиндор", facultyService.getFaculty(1L).getName());
     }
 
     @Test
-    public void returnNullFoundFacultyByColor() {
-        facultyService.getAllFaculty().put(1L, gryffindor);
-        facultyService.getAllFaculty().put(2L, slytherin);
-        facultyService.getAllFaculty().put(3L, hufflepuff);
-        facultyService.getAllFaculty().put(4L, ravenclaw);
-        assertNull(facultyService.foundFacultyByColor("черный"));
+    public void returnNullGetFacultyTest() {
+        when(facultyRepository.findById(2L)).thenReturn(Optional.empty());
+        assertNull(facultyService.getFaculty(2L));
     }
 
     @Test
-    public void foundFacultyByColor() {
-        facultyService.getAllFaculty().put(1L, gryffindor);
-        facultyService.getAllFaculty().put(2L, slytherin);
-        facultyService.getAllFaculty().put(3L, hufflepuff);
-        facultyService.getAllFaculty().put(4L, ravenclaw);
-        facultyMapTest.remove(2L);
-        facultyMapTest.remove(4L);
-        assertEquals(facultyMapTest.values().stream().toList(), facultyService.foundFacultyByColor("красный"));
+    public void foundFacultyByColorSizeTest() {
+        Faculty facultyTest = new Faculty(2L, "Слизерин", "Зелёный");
+        List<Faculty> faculties = new ArrayList<>(List.of(faculty, facultyTest));
+        when(facultyRepository.findAll()).thenReturn(faculties);
+        assertEquals(1, facultyService.foundFacultyByColor("красный").size());
     }
 
     @Test
-    public void returnNullDeleteFaculty() {
-        facultyService.getAllFaculty().put(1L, gryffindor);
-        facultyService.getAllFaculty().put(2L, slytherin);
-        facultyService.getAllFaculty().put(3L, hufflepuff);
-        facultyService.getAllFaculty().put(4L, ravenclaw);
-        assertNull(facultyService.deleteFaculty(10L));
+    public void foundFacultyByColorTest() {
+        Faculty facultyTest = new Faculty(2L, "Слизерин", "Зелёный");
+        List<Faculty> faculties = new ArrayList<>(List.of(faculty, facultyTest));
+        when(facultyRepository.findAll()).thenReturn(faculties);
+        assertEquals("Гиффиндор", facultyService.foundFacultyByColor("красный").get(0).getName());
     }
 
     @Test
-    public void returnDeleteFaculty() {
-        facultyService.getAllFaculty().put(1L, gryffindor);
-        facultyService.getAllFaculty().put(2L, slytherin);
-        facultyService.getAllFaculty().put(3L, hufflepuff);
-        facultyService.getAllFaculty().put(4L, ravenclaw);
-        assertEquals(slytherin, facultyService.deleteFaculty(2L));
+    public void emptyFoundFacultyByColorTest() {
+        Faculty facultyTest = new Faculty(2L, "Слизерин", "Зелёный");
+        List<Faculty> faculties = new ArrayList<>(List.of(faculty, facultyTest));
+        when(facultyRepository.findAll()).thenReturn(faculties);
+        assertTrue(facultyService.foundFacultyByColor("белый").isEmpty());
     }
 
     @Test
-    public void deleteFaculty() {
-        facultyService.getAllFaculty().put(1L, gryffindor);
-        facultyService.getAllFaculty().put(2L, slytherin);
-        facultyService.getAllFaculty().put(3L, hufflepuff);
-        facultyService.getAllFaculty().put(4L, ravenclaw);
-        facultyMapTest.remove(3L);
-        facultyService.deleteFaculty(3L);
-        assertEquals(facultyMapTest, facultyService.getAllFaculty());
-    }*/
+    public void returnDeleteFacultyTest() {
+        when(facultyRepository.findById(1L)).thenReturn(Optional.of(faculty));
+        assertEquals("Гиффиндор", facultyService.deleteFaculty(1L).getName());
+    }
+
+    @Test
+    public void returnNullDeleteFacultyTest() {
+        when(facultyRepository.findById(2L)).thenReturn(Optional.empty());
+        assertNull(facultyService.deleteFaculty(2L));
+    }
+
+    @Test
+    public void deleteFacultyTest() {
+        when(facultyRepository.findById(1L)).thenReturn(Optional.of(faculty));
+        facultyService.deleteFaculty(1L);
+        verify(facultyRepository, times(1)).deleteById(1L);
+    }
 }

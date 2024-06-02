@@ -31,12 +31,8 @@ public class FacultyController {
     }
 
     @GetMapping(params = "color", path = "color")
-    public ResponseEntity<List<Faculty>> getFacultyByColor(@RequestParam String color) {
-        List<Faculty> faculties = facultyService.foundFacultyByColor(color);
-        if (faculties == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(faculties);
+    public List<Faculty> getFacultyByColor(@RequestParam String color) {
+        return facultyService.foundFacultyByColor(color);
     }
 
     @PutMapping

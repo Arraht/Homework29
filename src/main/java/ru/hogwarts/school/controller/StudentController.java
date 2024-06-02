@@ -50,11 +50,7 @@ public class StudentController {
     }
 
     @GetMapping(params = "age", path = "age")
-    public ResponseEntity<List<Student>> getStudentByAge(@RequestParam int age) {
-        List<Student> studentList = studentService.foundStudentByAge(age);
-        if (studentList == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(studentList);
+    public List<Student> getStudentByAge(@RequestParam int age) {
+        return studentService.foundStudentByAge(age);
     }
 }
