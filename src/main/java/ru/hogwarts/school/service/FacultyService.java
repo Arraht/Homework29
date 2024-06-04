@@ -2,59 +2,64 @@ package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.repositories.FacultyRepository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Service
 public class FacultyService {
-    private final Map<Long, Faculty> allFaculty = new HashMap<>(Map.of());
-    private Long id = 0L;
+    private final FacultyRepository facultyRepository;
 
-    public Faculty addFaculty(Faculty faculty) {
-        ++this.id;
-        faculty.setId(this.id);
-        allFaculty.put(faculty.getId(), faculty);
-        return faculty;
+    public FacultyService(FacultyRepository facultyRepository) {
+        this.facultyRepository = facultyRepository;
     }
 
-    public Faculty editFaculty(Faculty faculty) {
-        if (allFaculty.containsKey(faculty.getId())) {
-            allFaculty.put(faculty.getId(), faculty);
-            return faculty;
+    public boolean checkFacultyById(Long id) {
+        if (facultyRepository.findById(id).isEmpty()) {
+            return true;
+        } else {
+            return false;
         }
-        return null;
+    }
+
+    public Faculty addFaculty(Faculty faculty) {
+        return facultyRepository.save(faculty);
+    }
+
+    public Faculty editFaculty(Long id, Faculty faculty) {
+        if (checkFacultyById(id)) {
+            return null;
+        } else {
+            Faculty foundFacultyForEdit = facultyRepository.findById(id).get();
+            foundFacultyForEdit.setFaculty(id, faculty.getName(), faculty.getColor());
+            return facultyRepository.save(foundFacultyForEdit);
+        }
     }
 
     public Faculty getFaculty(Long id) {
-        if (allFaculty.containsKey(id)) {
-            return allFaculty.get(id);
+        if (checkFacultyById(id)) {
+            return null;
+        } else {
+            return facultyRepository.findById(id).get();
         }
-        return null;
     }
 
     public List<Faculty> foundFacultyByColor(String color) {
-        List<Faculty> faculties = allFaculty
-                .values()
+        return facultyRepository
+                .findAll()
                 .stream()
-                .filter(faculty -> Objects.equals(faculty.getColor(), color))
+                .filter(faculty -> Objects.equals(faculty.getColor(), color.toLowerCase()))
                 .toList();
-        if (faculties.isEmpty()) {
-            return null;
-        }
-        return faculties;
     }
 
     public Faculty deleteFaculty(Long id) {
-        if (allFaculty.containsKey(id)) {
-            return allFaculty.remove(id);
+        if (checkFacultyById(id)) {
+            return null;
+        } else {
+            Faculty faculty = facultyRepository.findById(id).get();
+            facultyRepository.deleteById(id);
+            return faculty;
         }
-        return null;
-    }
-
-    public Map<Long, Faculty> getAllFaculty() {
-        return allFaculty;
     }
 }

@@ -2,139 +2,121 @@ package ru.hogwarts.school.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repositories.StudentRepository;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class StudentServiceTest {
-    private final StudentService studentService = new StudentService();
-    private Student harry;
-    private Student ron;
-    private Student fred;
-    private final Map<Long, Student> studentMapTest = new HashMap<>(Map.of());
+    @Mock
+    private StudentRepository studentRepository;
+    @InjectMocks
+    private StudentService studentService;
+    private Student student;
 
     @BeforeEach
     public void setUp() {
-        harry = new Student(1L, "Гарри Поттер", 11);
-        ron = new Student(2L, "Рон Уизли", 11);
-        fred = new Student(3L, "Фред Уизли", 13);
-        studentMapTest.put(1L, harry);
-        studentMapTest.put(2L, ron);
-        studentMapTest.put(3L, fred);
+        student = new Student();
+        student.setId(1L);
+        student.setName("Гарри Поттер");
+        student.setAge(11);
     }
 
-    @Test
-    public void getAllStudentsTest() {
-        studentService.getAllStudents().put(1L, harry);
-        studentService.getAllStudents().put(2L, ron);
-        studentService.getAllStudents().put(3L, fred);
-        assertEquals(studentMapTest, studentService.getAllStudents());
-    }
 
     @Test
-    public void returnAddStudentTest() {
-        Student student = new Student(0L, "Гарри Поттер", 11);
-        assertEquals(harry, studentService.addStudent(student));
-    }
-
-    @Test
-    public void addStudentMapTest() {
-        Student student = new Student(0L, "Гарри Поттер", 11);
-        Student studentTwo = new Student(0L, "Рон Уизли", 11);
-        Student studentThree = new Student(0L, "Фред Уизли", 13);
-        studentService.addStudent(student);
-        studentService.addStudent(studentTwo);
-        studentService.addStudent(studentThree);
-        assertEquals(studentMapTest, studentService.getAllStudents());
-    }
-
-    @Test
-    public void ReturnNullEditStudentTest() {
-        Student student = new Student(0L, "Гермиона Грейнджер", 15);
-        assertNull(studentService.editStudent(student));
-    }
-
-    @Test
-    public void returnEditStudentTest() {
-        studentService.getAllStudents().put(1L, harry);
-        studentService.getAllStudents().put(2L, ron);
-        studentService.getAllStudents().put(3L, fred);
-        harry = new Student(1L, "Гарри Поттер", 15);
-        Student student = new Student(1L, "Гарри Поттер", 15);
-        assertEquals(harry, studentService.editStudent(student));
+    public void AddStudentTest() {
+        when(studentRepository.save(any(Student.class))).thenReturn(student);
+        assertEquals("Гарри Поттер", studentService.addStudent(student).getName());
     }
 
     @Test
     public void editStudentTest() {
-        Student student = new Student(2L, "Гарри Поттер", 13);
-        studentService.getAllStudents().put(1L, harry);
-        studentService.getAllStudents().put(2L, ron);
-        studentService.getAllStudents().put(3L, fred);
-        studentMapTest.put(2L, student);
-        studentService.editStudent(student);
-        assertEquals(studentMapTest, studentService.getAllStudents());
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
+        when(studentRepository.save(any(Student.class))).thenReturn(student);
+        student.setName("Фред Уизли");
+        Student studentTest = studentService.editStudent(1L, student);
+        assertEquals("Фред Уизли", studentTest.getName());
+    }
+
+    @Test
+    public void checkStudentByIdTrueTest() {
+        when(studentRepository.findById(2L)).thenReturn(Optional.empty());
+        assertTrue(studentService.checkStudentById(2L));
+    }
+
+    @Test
+    public void checkStudentByIdFalseTest() {
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
+        assertFalse(studentService.checkStudentById(1L));
+    }
+
+    @Test
+    public void returnNullEditStudentTest() {
+        when(studentRepository.findById(2L)).thenReturn(Optional.empty());
+        assertNull(studentService.editStudent(2L, student));
     }
 
     @Test
     public void findStudentTest() {
-        studentService.getAllStudents().put(1L, harry);
-        studentService.getAllStudents().put(2L, ron);
-        studentService.getAllStudents().put(3L, fred);
-        assertEquals(ron, studentService.findStudent(2L));
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
+        assertEquals("Гарри Поттер", studentService.findStudent(1L).getName());
     }
 
     @Test
     public void returnNullFindStudentTest() {
-        studentService.addStudent(harry);
-        studentService.addStudent(ron);
-        studentService.addStudent(fred);
-        assertNull(studentService.findStudent(15L));
+        when(studentRepository.findById(2L)).thenReturn(Optional.empty());
+        assertNull(studentService.findStudent(2L));
+    }
+
+    @Test
+    public void foundSizeStudentByAgeTest() {
+        Student studentTest = new Student(2L, "Фред Уизли", 13);
+        List<Student> students = new ArrayList<>(List.of(student, studentTest));
+        when(studentRepository.findAll()).thenReturn(students);
+        assertEquals(1, studentService.foundStudentByAge(11).size());
     }
 
     @Test
     public void foundStudentByAgeTest() {
-        studentService.addStudent(harry);
-        studentService.addStudent(ron);
-        studentService.addStudent(fred);
-        studentMapTest.remove(3L);
-        assertEquals(studentMapTest.values().stream().toList(), studentService.foundStudentByAge(11));
+        Student studentTest = new Student(2L, "Фред Уизли", 13);
+        List<Student> students = new ArrayList<>(List.of(student, studentTest));
+        when(studentRepository.findAll()).thenReturn(students);
+        assertEquals("Гарри Поттер", studentService.foundStudentByAge(11).get(0).getName());
     }
 
     @Test
-    public void returnNullFoundStudentByAgeTest() {
-        studentService.getAllStudents().put(1L, harry);
-        studentService.getAllStudents().put(2L, ron);
-        studentService.getAllStudents().put(3L, fred);
-        assertNull(studentService.foundStudentByAge(25));
+    public void emptyFoundStudentByAgeTest() {
+        Student studentTest = new Student(2L, "Фред Уизли", 13);
+        List<Student> students = new ArrayList<>(List.of(student, studentTest));
+        when(studentRepository.findAll()).thenReturn(students);
+        assertTrue(studentService.foundStudentByAge(15).isEmpty());
     }
 
     @Test
     public void returnDeleteStudentTest() {
-        studentService.getAllStudents().put(1L, harry);
-        studentService.getAllStudents().put(2L, ron);
-        studentService.getAllStudents().put(3L, fred);
-        assertEquals(fred, studentService.deleteStudent(3L));
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
+        assertEquals("Гарри Поттер", studentService.deleteStudent(1L).getName());
     }
 
     @Test
     public void returnNullDeleteStudentTest() {
-        studentService.getAllStudents().put(1L, harry);
-        studentService.getAllStudents().put(2L, ron);
-        studentService.getAllStudents().put(3L, fred);
-        assertNull(studentService.deleteStudent(15L));
+        when(studentRepository.findById(2L)).thenReturn(Optional.empty());
+        assertNull(studentService.deleteStudent(2L));
     }
 
     @Test
     public void deleteStudentTest() {
-        studentService.getAllStudents().put(1L, harry);
-        studentService.getAllStudents().put(2L, ron);
-        studentService.getAllStudents().put(3L, fred);
-        studentMapTest.remove(3L);
-        studentService.deleteStudent(3L);
-        assertEquals(studentMapTest, studentService.getAllStudents());
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
+        studentService.deleteStudent(1L);
+        verify(studentRepository, times(1)).deleteById(1L);
     }
 }
