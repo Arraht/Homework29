@@ -72,10 +72,6 @@ public class AvatarService {
 
     private void writeAvatarToFile(Path path, byte[] data) {
         try (OutputStream fos = new BufferedOutputStream(new FileOutputStream(path.toFile()))) {
-            Files.createDirectories(path.getParent());
-            if (Files.notExists(path)) {
-                Files.createFile(path);
-            }
             fos.write(data);
         } catch (IOException e) {
             throw new RuntimeException(e);
