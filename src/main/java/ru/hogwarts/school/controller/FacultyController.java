@@ -27,10 +27,10 @@ public class FacultyController {
     public ResponseEntity<Student> addStudentByFaculty(@RequestParam Long studentId,
                                                        @RequestParam Long facultyId) {
         Student student = facultyService.addStudentByFaculty(studentId, facultyId);
-        if (student == null) {
-            return ResponseEntity.notFound().build();
-        } else {
+        if (student != null) {
             return ResponseEntity.ok(student);
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 
