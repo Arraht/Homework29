@@ -25,11 +25,17 @@ public class AvatarController {
         avatarService.uploadAvatar(id, avatar);
         return ResponseEntity.ok().build();
     }
+
     @GetMapping(value = "/{id}/repository")
-    public ResponseEntity<byte[]> downloadAvatar(@PathVariable Long id) {
-        Avatar avatar = avatarService.getAvatarForStudent(id);
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(avatar.getMediaType()))
-                .contentLength(avatar.getFileSize()).body(avatar.getData());
+    public ResponseEntity<byte[]> downloadAvatarByRepository(@PathVariable Long id, HttpServletResponse response) {
+        Avatar avatar = avatarService.findStudentAvatar(id);
+        if (avatar != null) {
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType(avatar.getMediaType()))
+                    .contentLength(avatar.getFileSize())
+                    .body(avatar.getData());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping(value = "/{id}")

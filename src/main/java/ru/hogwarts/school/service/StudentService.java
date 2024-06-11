@@ -18,11 +18,7 @@ public class StudentService {
     }
 
     public boolean checkStudentById(Long id) {
-        if (studentRepository.findById(id).isEmpty()) {
-            return true;
-        } else {
-            return false;
-        }
+        return studentRepository.findById(id).isEmpty();
     }
 
     public Student addStudent(Student student) {
