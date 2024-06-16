@@ -8,6 +8,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.exceprion.FileNotFoundException;
 import ru.hogwarts.school.exceprion.StudentNotFoundException;
+import ru.hogwarts.school.service.interfaces.AvatarService;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repositories.AvatarRepository;
@@ -18,37 +19,31 @@ import java.nio.file.Path;
 
 @Service
 @Transactional
-public class AvatarService {
+public class AvatarServiceIml implements AvatarService {
     @Value("${path.to.avatars.folder}")
     private String avatarPath;
     private final AvatarRepository avatarRepository;
-    private final StudentService studentService;
+    private final StudentServiceImpl studentServiceImpl;
 
-    public AvatarService(AvatarRepository avatarRepository,
-                         StudentService studentService) {
+    public AvatarServiceIml(AvatarRepository avatarRepository,
+                            StudentServiceImpl studentServiceImpl) {
         this.avatarRepository = avatarRepository;
-        this.studentService = studentService;
+        this.studentServiceImpl = studentServiceImpl;
     }
 
+    @Override
     public void uploadAvatar(Long studentId, MultipartFile file) throws IOException {
+        checkStudent(studentId);
         byte[] data = file.getBytes();
-        Student student = studentService.findStudent(studentId);
+        Student student = studentServiceImpl.findStudent(studentId);
         Avatar avatar = findStudentAvatar(studentId);
         Path filePath = Path.of(avatarPath, student.getName() + "." + getFileExtension(file));
-        try {
-            if (avatar == null) {
-                avatar = new Avatar();
-            }
-            Files.createDirectory(filePath.getParent());
-            writeAvatarToFile(filePath, data);
-        } catch (IOException e) {
-            Files.deleteIfExists(filePath);
-            writeAvatarToFile(filePath, data);
-        }
+        writeFile(avatar, filePath, data);
         setAvatarInfo(filePath, file, student, avatar, data);
         avatarRepository.save(avatar);
     }
 
+    @Override
     public Avatar findStudentAvatar(Long studentId) {
         if (!checkAvatarStudentById(studentId)) {
             return avatarRepository.findByStudentId(studentId).orElseThrow();
@@ -57,6 +52,7 @@ public class AvatarService {
         }
     }
 
+    @Override
     public void findAvatarFile(Long studentId, HttpServletResponse response) {
         checkStudent(studentId);
         Avatar avatar = findStudentAvatar(studentId);
@@ -73,22 +69,32 @@ public class AvatarService {
         }
     }
 
-    private void setResponseStatus(Avatar avatar, HttpServletResponse response) {
-        response.setStatus(200);
-        response.setContentType(avatar.getMediaType());
-        response.setContentLength((int) avatar.getFileSize());
+    private String getFileExtension(MultipartFile file) {
+        return StringUtils.getFilenameExtension(file.getOriginalFilename());
     }
 
     private boolean checkAvatarStudentById(Long id) {
         return avatarRepository.findByStudentId(id).isEmpty();
     }
 
+    private void checkNullAvatar(Avatar avatar) {
+        if (avatar == null) {
+            avatar = new Avatar();
+        }
+    }
+
     private void checkStudent(Long studentId) {
-        if (studentService.checkStudentById(studentId)) {
+        if (studentServiceImpl.checkStudentById(studentId)) {
             StudentNotFoundException s = new StudentNotFoundException("Такого студента нет!");
             s.printStackTrace();
             throw s;
         }
+    }
+
+    private void setResponseStatus(Avatar avatar, HttpServletResponse response) {
+        response.setStatus(200);
+        response.setContentType(avatar.getMediaType());
+        response.setContentLength((int) avatar.getFileSize());
     }
 
     private void setAvatarInfo(Path path, MultipartFile file, Student student, Avatar avatar, byte[] data) {
@@ -99,15 +105,22 @@ public class AvatarService {
         avatar.setData(data);
     }
 
-    private String getFileExtension(MultipartFile file) {
-        return StringUtils.getFilenameExtension(file.getOriginalFilename());
-    }
-
     private void writeAvatarToFile(Path path, byte[] data) {
         try (OutputStream fos = new BufferedOutputStream(new FileOutputStream(path.toFile()))) {
             fos.write(data);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void writeFile(Avatar avatar, Path filePath, byte[] data) throws IOException {
+        try {
+            checkNullAvatar(avatar);
+            Files.createDirectory(filePath.getParent());
+            writeAvatarToFile(filePath, data);
+        } catch (IOException e) {
+            Files.deleteIfExists(filePath);
+            writeAvatarToFile(filePath, data);
         }
     }
 }
