@@ -4,31 +4,31 @@ import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repositories.StudentRepository;
+import ru.hogwarts.school.service.interfaces.StudentService;
 
 import java.util.Collection;
 import java.util.List;
 
 @Service
-public class StudentService {
+public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
 
-    public StudentService(StudentRepository studentRepository) {
+    public StudentServiceImpl(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
     }
 
+    @Override
     public boolean checkStudentById(Long id) {
-        if (studentRepository.findById(id).isEmpty()) {
-            return true;
-        } else {
-            return false;
-        }
+        return studentRepository.findById(id).isEmpty();
     }
 
+    @Override
     public Student addStudent(Student student) {
         return studentRepository.save(student);
     }
 
+    @Override
     public Student editStudent(Long id, Student student) {
         if (checkStudentById(id)) {
             return null;
@@ -39,6 +39,7 @@ public class StudentService {
         }
     }
 
+    @Override
     public Student findStudent(Long id) {
         if (checkStudentById(id)) {
             return null;
@@ -47,6 +48,7 @@ public class StudentService {
         }
     }
 
+    @Override
     public List<Student> foundStudentByAge(int age) {
         return studentRepository
                 .findAll()
@@ -55,6 +57,7 @@ public class StudentService {
                 .toList();
     }
 
+    @Override
     public Student deleteStudent(Long id) {
         if (checkStudentById(id)) {
             return null;
@@ -65,10 +68,12 @@ public class StudentService {
         }
     }
 
+    @Override
     public Collection<Student> findStudentBetweenByAge(Integer minAge, Integer maxAge) {
         return studentRepository.findByAgeBetween(minAge, maxAge);
     }
 
+    @Override
     public Faculty findFacultyFromStudent(Long id) {
         return findStudent(id).getFaculty();
     }

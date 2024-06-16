@@ -4,7 +4,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
-import ru.hogwarts.school.service.FacultyService;
+import ru.hogwarts.school.service.FacultyServiceImpl;
+import ru.hogwarts.school.service.interfaces.FacultyService;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,10 +28,10 @@ public class FacultyController {
     public ResponseEntity<Student> addStudentByFaculty(@RequestParam Long studentId,
                                                        @RequestParam Long facultyId) {
         Student student = facultyService.addStudentByFaculty(studentId, facultyId);
-        if (student == null) {
-            return ResponseEntity.notFound().build();
-        } else {
+        if (student != null) {
             return ResponseEntity.ok(student);
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 

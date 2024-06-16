@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
-import ru.hogwarts.school.service.StudentService;
+import ru.hogwarts.school.service.interfaces.StudentService;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,6 +22,7 @@ public class StudentController {
     public Student createStudent(@RequestBody Student student) {
         return studentService.addStudent(student);
     }
+
 
     @GetMapping("{id}")
     public ResponseEntity<Student> getStudent(@PathVariable Long id) {

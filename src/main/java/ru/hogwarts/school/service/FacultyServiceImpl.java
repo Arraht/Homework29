@@ -5,18 +5,19 @@ import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repositories.FacultyRepository;
 import ru.hogwarts.school.repositories.StudentRepository;
+import ru.hogwarts.school.service.interfaces.FacultyService;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
 @Service
-public class FacultyService {
+public class FacultyServiceImpl implements FacultyService {
     private final FacultyRepository facultyRepository;
     private final StudentRepository studentRepository;
 
-    public FacultyService(FacultyRepository facultyRepository,
-                          StudentRepository studentRepository) {
+    public FacultyServiceImpl(FacultyRepository facultyRepository,
+                              StudentRepository studentRepository) {
         this.facultyRepository = facultyRepository;
         this.studentRepository = studentRepository;
     }
@@ -29,10 +30,12 @@ public class FacultyService {
         }
     }
 
+    @Override
     public Faculty addFaculty(Faculty faculty) {
         return facultyRepository.save(faculty);
     }
 
+    @Override
     public Faculty editFaculty(Long id, Faculty faculty) {
         if (checkFacultyById(id)) {
             return null;
@@ -43,6 +46,7 @@ public class FacultyService {
         }
     }
 
+    @Override
     public Faculty getFaculty(Long id) {
         if (checkFacultyById(id)) {
             return null;
@@ -51,6 +55,7 @@ public class FacultyService {
         }
     }
 
+    @Override
     public List<Faculty> foundFacultyByColor(String color) {
         return facultyRepository
                 .findAll()
@@ -59,14 +64,17 @@ public class FacultyService {
                 .toList();
     }
 
+    @Override
     public Collection<Faculty> findFacultyByName(String name) {
         return facultyRepository.findByNameIgnoreCase(name);
     }
 
+    @Override
     public Collection<Faculty> findFacultyByColor(String color) {
         return facultyRepository.findByColorIgnoreCase(color);
     }
 
+    @Override
     public Faculty deleteFaculty(Long id) {
         if (checkFacultyById(id)) {
             return null;
@@ -77,10 +85,12 @@ public class FacultyService {
         }
     }
 
+    @Override
     public List<Student> findStudentFromFaculty(Long id) {
         return studentRepository.findByFaculty_Id(id);
     }
 
+    @Override
     public Student addStudentByFaculty(Long studentId, Long facultyId) {
         if (studentRepository.findById(studentId).isEmpty()) {
             return null;
