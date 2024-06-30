@@ -9,6 +9,7 @@ import ru.hogwarts.school.service.interfaces.AvatarService;
 import ru.hogwarts.school.model.Avatar;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("avatar")
@@ -41,5 +42,12 @@ public class AvatarController {
     @GetMapping(value = "/{id}")
     public void downloadAvatar(@PathVariable Long id, HttpServletResponse response) {
         avatarService.findAvatarFile(id, response);
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<List<Avatar>> getAvatarByPage(@RequestParam("page") Integer page,
+                                                  @RequestParam("size") Integer size) {
+        List<Avatar> avatars = avatarService.findAvatarByPage(page, size);
+        return ResponseEntity.ok(avatars);
     }
 }

@@ -22,4 +22,10 @@ public interface StudentService {
     Collection<Student> findStudentBetweenByAge(Integer minAge, Integer maxAge);
 
     Faculty findFacultyFromStudent(Long id);
+
+    Long getAmountStudent();
+
+    Double findAverageAllStudent();
+
+    List<Student> findLastFiveStudent();
 }
