@@ -3,6 +3,7 @@ package ru.hogwarts.school.service;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,7 @@ import ru.hogwarts.school.repositories.AvatarRepository;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 @Service
 @Transactional
@@ -36,10 +38,10 @@ public class AvatarServiceIml implements AvatarService {
         checkStudent(studentId);
         byte[] data = file.getBytes();
         Student student = studentServiceImpl.findStudent(studentId);
-        Avatar avatar = findStudentAvatar(studentId);
+        Avatar avatar = findAvatarByWrite(studentId);
         Path filePath = Path.of(avatarPath, student.getName() + "." + getFileExtension(file));
-        writeFile(avatar, filePath, data);
         setAvatarInfo(filePath, file, student, avatar, data);
+        writeFile(avatar, filePath, data);
         avatarRepository.save(avatar);
     }
 
@@ -56,6 +58,11 @@ public class AvatarServiceIml implements AvatarService {
     public void findAvatarFile(Long studentId, HttpServletResponse response) {
         checkStudent(studentId);
         Avatar avatar = findStudentAvatar(studentId);
+        if (avatar == null) {
+            FileNotFoundException f = new FileNotFoundException("Файл не найден при поиске из файловой системы!");
+            f.printStackTrace();
+            throw f;
+        }
         Path path = Path.of(avatar.getFilePath());
         try (InputStream is = Files.newInputStream(path);
              OutputStream os = response.getOutputStream()
@@ -63,9 +70,21 @@ public class AvatarServiceIml implements AvatarService {
             setResponseStatus(avatar, response);
             is.transferTo(os);
         } catch (IOException e) {
-            FileNotFoundException f = new FileNotFoundException("Файл не найден при поиске из файловой системы!");
-            f.printStackTrace();
-            throw f;
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<Avatar> findAvatarByPage(Integer pageNumber, Integer pageSize) {
+        PageRequest pageRequest = PageRequest.of((pageNumber - 1), pageSize);
+        return avatarRepository.getAvatar(pageRequest);
+    }
+
+    private Avatar findAvatarByWrite(Long studentId) {
+        if (!checkAvatarStudentById(studentId)) {
+            return avatarRepository.findByStudentId(studentId).orElseThrow();
+        } else {
+            return new Avatar();
         }
     }
 
