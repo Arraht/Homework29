@@ -1,27 +1,29 @@
 package ru.hogwarts.school.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.util.Objects;
 
+@DynamicInsert
 @Entity
 public class Student {
     @Id
     @GeneratedValue()
     private Long id;
     private String name;
-    private int age;
+    private Integer age;
     @ManyToOne
     @JoinColumn(name = "faculty_id")
     private Faculty faculty;
 
-    public Student(Long id, String name, int age) {
+    public Student(Long id, String name, Integer age) {
         this.id = id;
         this.name = name;
         this.age = age;
     }
 
-    public Student(Long id, String name, int age, Faculty faculty) {
+    public Student(Long id, String name, Integer age, Faculty faculty) {
         this.id = id;
         this.name = name;
         this.age = age;
@@ -51,11 +53,11 @@ public class Student {
         return age;
     }
 
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 
-    public void setStudent(Long id, String name, int age) {
+    public void setStudent(Long id, String name, Integer age) {
         setId(id);
         setName(name);
         setAge(age);
