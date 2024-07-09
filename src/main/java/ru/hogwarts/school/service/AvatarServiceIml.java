@@ -60,7 +60,6 @@ public class AvatarServiceIml implements AvatarService {
         Avatar avatar = findStudentAvatar(studentId);
         if (avatar == null) {
             FileNotFoundException f = new FileNotFoundException("Файл не найден при поиске из файловой системы!");
-            f.printStackTrace();
             throw f;
         }
         Path path = Path.of(avatar.getFilePath());
@@ -77,7 +76,7 @@ public class AvatarServiceIml implements AvatarService {
     @Override
     public List<Avatar> findAvatarByPage(Integer pageNumber, Integer pageSize) {
         PageRequest pageRequest = PageRequest.of((pageNumber - 1), pageSize);
-        return avatarRepository.getAvatar(pageRequest);
+        return avatarRepository.findAll(pageRequest).getContent();
     }
 
     private Avatar findAvatarByWrite(Long studentId) {
@@ -105,7 +104,6 @@ public class AvatarServiceIml implements AvatarService {
     private void checkStudent(Long studentId) {
         if (studentServiceImpl.checkStudentById(studentId)) {
             StudentNotFoundException s = new StudentNotFoundException("Такого студента нет!");
-            s.printStackTrace();
             throw s;
         }
     }

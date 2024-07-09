@@ -25,7 +25,11 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public Student addStudent(Student student) {
-        return studentRepository.save(student);
+        if (student.getAge() == 0) {
+            student.setAge(null);
+            return studentRepository.save(student);
+        } else {
+            return studentRepository.save(student);        }
     }
 
     @Override

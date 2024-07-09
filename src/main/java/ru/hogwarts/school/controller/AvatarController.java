@@ -46,7 +46,7 @@ public class AvatarController {
 
     @GetMapping("/page")
     public ResponseEntity<List<Avatar>> getAvatarByPage(@RequestParam("page") Integer page,
-                                                  @RequestParam("size") Integer size) {
+                                                        @RequestParam("size") Integer size) {
         List<Avatar> avatars = avatarService.findAvatarByPage(page, size);
         return ResponseEntity.ok(avatars);
     }
