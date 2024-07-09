@@ -57,6 +57,17 @@ public class FacultyController {
         return facultyService.foundFacultyByColor(color);
     }
 
+    @GetMapping("/name/color")
+    public ResponseEntity<List<Faculty>> getFacultyByNameAndByColor(@RequestParam String name,
+                                                                    @RequestParam String color) {
+        Collection<Faculty> resultFind = facultyService.findFacultyNameAndColor(name, color);
+        if (resultFind != null) {
+            return ResponseEntity.ok(resultFind.stream().toList());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @GetMapping("find")
     public Collection<Faculty> getFacultyByNameOrColor(@RequestParam(required = false) String name,
                                                        @RequestParam(required = false) String color) {

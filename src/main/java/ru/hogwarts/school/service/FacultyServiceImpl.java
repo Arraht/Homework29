@@ -70,6 +70,16 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
+    public Collection<Faculty> findFacultyNameAndColor(String name, String color) {
+        Collection<Faculty> result = facultyRepository.findAllByNameIgnoreCaseAndColorIgnoreCase(name, color);
+        if (!result.isEmpty()) {
+            return result;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public Collection<Faculty> findFacultyByColor(String color) {
         return facultyRepository.findByColorIgnoreCase(color);
     }

@@ -17,6 +17,8 @@ public interface FacultyService {
 
     Collection<Faculty> findFacultyByName(String name);
 
+    Collection<Faculty> findFacultyNameAndColor(String name, String color);
+
     Collection<Faculty> findFacultyByColor(String color);
 
     Faculty deleteFaculty(Long id);

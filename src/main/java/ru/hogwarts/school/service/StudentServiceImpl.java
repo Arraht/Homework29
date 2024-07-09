@@ -29,7 +29,8 @@ public class StudentServiceImpl implements StudentService {
             student.setAge(null);
             return studentRepository.save(student);
         } else {
-            return studentRepository.save(student);        }
+            return studentRepository.save(student);
+        }
     }
 
     @Override
@@ -49,6 +50,16 @@ public class StudentServiceImpl implements StudentService {
             return null;
         } else {
             return studentRepository.findById(id).get();
+        }
+    }
+
+    @Override
+    public List<Student> findStudentByName(String name) {
+        List<Student> result = studentRepository.findByNameIgnoreCase(name);
+        if (!result.isEmpty()) {
+            return studentRepository.findByNameIgnoreCase(name);
+        } else {
+            return null;
         }
     }
 

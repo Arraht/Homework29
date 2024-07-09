@@ -15,6 +15,8 @@ public interface StudentService {
 
     Student findStudent(Long id);
 
+    List<Student> findStudentByName(String name);
+
     List<Student> foundStudentByAge(int age);
 
     Student deleteStudent(Long id);
