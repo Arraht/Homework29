@@ -30,4 +30,8 @@ public interface StudentService {
     Double findAverageAllStudent();
 
     List<Student> findLastFiveStudent();
+
+    Collection<Student> findStudentByStartsWithA();
+
+    Double findAverageStudentByAge();
 }
