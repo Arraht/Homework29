@@ -9,9 +9,7 @@ import ru.hogwarts.school.repositories.FacultyRepository;
 import ru.hogwarts.school.repositories.StudentRepository;
 import ru.hogwarts.school.service.interfaces.FacultyService;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class FacultyServiceImpl implements FacultyService {
@@ -137,5 +135,13 @@ public class FacultyServiceImpl implements FacultyService {
             logger.info("Студент {} был добавлен на факультет {}", student.getName(), faculty.getName());
             return studentRepository.save(student);
         }
+    }
+
+    @Override
+    public Optional<String> findFacultyNameLongest() {
+        return facultyRepository.findAll()
+                .stream()
+                .map(Faculty::getName)
+                .max(Comparator.comparingInt(String::length));
     }
 }

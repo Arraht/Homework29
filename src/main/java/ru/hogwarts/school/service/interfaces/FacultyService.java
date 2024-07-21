@@ -5,6 +5,7 @@ import ru.hogwarts.school.model.Student;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface FacultyService {
     Faculty addFaculty(Faculty faculty);
@@ -26,4 +27,6 @@ public interface FacultyService {
     List<Student> findStudentFromFaculty(Long id);
 
     Student addStudentByFaculty(Long studentId, Long facultyId);
+
+    Optional<String> findFacultyNameLongest();
 }
