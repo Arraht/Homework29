@@ -16,6 +16,7 @@ import java.util.List;
 public class StudentServiceImpl implements StudentService {
     private final Logger logger = LoggerFactory.getLogger(StudentServiceImpl.class);
     private final StudentRepository studentRepository;
+    private final Object flagSynchronized = new Object();
 
     public StudentServiceImpl(StudentRepository studentRepository) {
         this.studentRepository = studentRepository;
@@ -151,6 +152,52 @@ public class StudentServiceImpl implements StudentService {
                         .startsWith("А"))
                 .sorted(Comparator.comparing(Student::getName))
                 .toList();
+    }
+
+    @Override
+    public void printParallelName() {
+        List<Student> studentList = studentRepository.findAll();
+        printName(0, studentList);
+        printName(1, studentList);
+        new Thread(() -> {
+            printName(2, studentList);
+            printName(3, studentList);
+        }).start();
+        new Thread(() -> {
+            printName(4, studentList);
+            printName(5, studentList);
+        }).start();
+    }
+
+    @Override
+    public void printSynchronizedName() {
+        List<Student> students = studentRepository.findAll();
+        printName(0, students);
+        printName(1, students);
+        new Thread(() -> {
+            printSynchronized(2, students);
+            printSynchronized(3, students);
+        }).start();
+        new Thread(() -> {
+            printSynchronized(4, students);
+            printSynchronized(5, students);
+        }).start();
+    }
+
+    private void printSynchronized(int id, List<Student> students) {
+        synchronized (flagSynchronized) {
+            printName(id, students);
+        }
+    }
+
+    private void printName(int id, List<Student> students) {
+        if (students.isEmpty()) {
+            System.out.println("список пуст");
+        } else if (id < students.size()) {
+            System.out.println(students.get(id).getName());
+        } else {
+            throw new RuntimeException("Нет такого студента");
+        }
     }
 
     @Override

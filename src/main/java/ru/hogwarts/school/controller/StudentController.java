@@ -10,7 +10,7 @@ import java.util.Collection;
 import java.util.List;
 
 @RestController
-@RequestMapping("student")
+@RequestMapping("students")
 public class StudentController {
     private final StudentService studentService;
 
@@ -21,6 +21,16 @@ public class StudentController {
     @PostMapping
     public Student createStudent(@RequestBody Student student) {
         return studentService.addStudent(student);
+    }
+
+    @GetMapping("/print-parallel")
+    public void getPrintParallelName() {
+        studentService.printParallelName();
+    }
+
+    @GetMapping("/print-synchronized")
+    public void getPrintSynchronized() {
+        studentService.printSynchronizedName();
     }
 
     @GetMapping("{id}")
