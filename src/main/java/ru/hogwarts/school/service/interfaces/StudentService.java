@@ -33,5 +33,9 @@ public interface StudentService {
 
     Collection<Student> findStudentByStartsWithA();
 
+    void printParallelName();
+
+    void printSynchronizedName();
+
     Double findAverageStudentByAge();
 }
